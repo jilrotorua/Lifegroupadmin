@@ -1,10 +1,10 @@
 {
-  "name": "JIL Lifegroup Church Admin",
+  "name": "JIL Lifegroup Admin",
   "short_name": "LG Admin",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f6f8fc",
-  "theme_color": "#123b70",
+  "background_color": "#5b2d80",
+  "theme_color": "#5b2d80",
   "icons": [
     {
       "src": "icon-192.png",
