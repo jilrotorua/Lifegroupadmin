@@ -1,0 +1,15 @@
+SEPARATE ADMIN REPOSITORY SETUP
+
+1. Create a NEW PUBLIC GitHub repository, for example Lifegroup-Admin. Leave the existing Lifegroup-Attendance repository and the leaders’ link untouched.
+2. Extract this ZIP and upload the 9 website files in the ZIP ROOT into the root of your new repository. Upload: index.html, admin-config.js, config.js, bible-data.js, daily-verses.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png. Do NOT upload the admin-google folder to GitHub.
+3. In the new repository, go to Settings > Pages. Under Build and deployment choose Deploy from a branch, branch main and folder /(root), then Save. Your admin page will be https://YOUR-USERNAME.github.io/Lifegroup-Admin/ (replace repository name if different).
+4. Open the Google Sheet where leaders’ reports arrive. Copy its complete browser address.
+5. Create a NEW Google Apps Script project at script.google.com. Replace Code.gs with admin-google/Admin.gs and replace PASTE-YOUR-GOOGLE-SHEET-URL-HERE with the complete Sheet address (retain quotation marks).
+6. In that new Apps Script project add an HTML file named AdminPanel and paste admin-google/AdminPanel.html. Save.
+7. Deploy > New deployment > Web app. Execute as: Me. Who has access: Only myself. Authorize and copy the Web app address ending /exec.
+8. In the NEW GitHub admin repository, edit admin-config.js. Replace PASTE-PRIVATE-ADMIN-WEB-APP-URL-HERE with your private admin Web app /exec address. Commit.
+9. Open your new admin Pages URL on a phone signed into your admin Google account. Tap Admin > Refresh Database. If Google blocks its embedded sign-in, tap Open Full Page and refresh there.
+
+The dashboard opens on the current month and counts only submitted reports. Member and visitor totals are attendance over all gatherings, so a person present twice counts twice. It cannot list leaders who never submitted unless a separate expected-leaders list is added.
+
+Your leaders’ existing link remains unchanged. This new GitHub repository is a different browser origin: its local members, prayers, journals and other local data do not copy over from the leaders’ phones or your existing app. The Admin dashboard reads submitted reports from your Google Sheet. Keep the new Apps Script deployment restricted to Only myself.
