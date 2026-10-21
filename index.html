@@ -102,25 +102,25 @@ function refreshAdminDatabase(){
   timer=setTimeout(()=>finish('Refresh timed out. Please try again.'),30000);
   document.head.appendChild(script);
 }
-function adminLeaderKey(name){return String(name||'').trim().toLowerCase().replace(/\s+/g,' ')}
-function adminLeaderDisplay(name){const original=String(name||'').trim();return db.adminLeaderNames?.[adminLeaderKey(original)]||original||'Leader not recorded'}
-function editAdminLeaderName(original){
-  const key=adminLeaderKey(original);if(!key)return toast('The submitted report does not contain a leader name.');
-  const updated=prompt('Enter the Lifegroup leader’s complete name:',adminLeaderDisplay(original));
+function adminLeaderKey(name,group){const original=String(name||'').trim().toLowerCase().replace(/\s+/g,' ');if(original)return original;const lifegroup=String(group||'').trim().toLowerCase().replace(/\s+/g,' ');return lifegroup?'__missing__:'+lifegroup:''}
+function adminLeaderDisplay(name,group){const original=String(name||'').trim();return db.adminLeaderNames?.[adminLeaderKey(original,group)]||original||'Leader not recorded'}
+function editAdminLeaderName(original,group){
+  const key=adminLeaderKey(original,group);if(!key)return toast('The submitted report does not contain a leader or Lifegroup name.');
+  const updated=prompt('Enter the Lifegroup leader’s complete name:',adminLeaderDisplay(original,group)==='Leader not recorded'?'':adminLeaderDisplay(original,group));
   if(updated===null)return;
   const completeName=updated.trim().replace(/\s+/g,' ');if(!completeName)return toast('Please enter the leader’s complete name.');
   db.adminLeaderNames=db.adminLeaderNames||{};db.adminLeaderNames[key]=completeName;localStorage.setItem(KEY,JSON.stringify(db));renderAdminSummary();queueAdminAutoSync();toast('Leader name updated to '+completeName+'.');
 }
 function renderAdminSummary(){
   const month=document.getElementById('adminMonth').value,rows=adminSummaryRows.filter(r=>r.month===month);
-  const leaders=new Set(rows.map(r=>adminLeaderKey(adminLeaderDisplay(r.leader))).filter(Boolean));
+  const leaders=new Set(rows.map(r=>adminLeaderKey(adminLeaderDisplay(r.leader,r.group),r.group)).filter(Boolean));
   const count=(key)=>rows.reduce((n,r)=>n+(Number(r[key])||0),0);
   const uniquePeople=(namesKey,countKey)=>{const names=new Set();rows.forEach(r=>(Array.isArray(r[namesKey])?r[namesKey]:[]).forEach(name=>{const key=String(name||'').trim().toLowerCase().replace(/\s+/g,' ');if(key)names.add(key)}));return names.size||count(countKey)};
   document.getElementById('adminTotals').innerHTML=`<div class="admin-stat"><strong>${leaders.size}</strong><span>Leaders submitted</span></div><div class="admin-stat"><strong>${count('reports')}</strong><span>Reports</span></div><div class="admin-stat"><strong>${uniquePeople('memberNames','members')}</strong><span>Members</span></div><div class="admin-stat"><strong>${uniquePeople('visitorNames','visitors')}</strong><span>Visitors</span></div>`;
   const nameList=(names,empty)=>Array.isArray(names)&&names.length?names.map(esc).join(', '):empty;
   const quantityLabel=(value,word)=>`${Number(value)||0} ${word}${Number(value)===1?'':'s'}`;
   const reportDetails=(r)=>Array.isArray(r.details)&&r.details.length?r.details.map((d,i)=>`<div style="margin-top:12px;padding:12px;border-radius:12px;background:#f5f8fc"><b>Report ${i+1}${d.date?' · '+esc(d.date):''}</b>${d.venue?`<br><small><b>Venue:</b> ${esc(d.venue)}</small>`:''}${d.discussion?`<br><small><b>Discussion:</b> ${esc(d.discussion)}</small>`:''}${d.exhorter?`<br><small><b>Exhorter:</b> ${esc(d.exhorter)}</small>`:''}<p style="margin:8px 0 3px"><b>Members:</b> ${nameList(d.memberNames,'None recorded')}</p><p style="margin:3px 0"><b>Visitors:</b> ${nameList(d.visitorNames,'None recorded')}</p><p style="margin:8px 0 0;white-space:pre-wrap"><b>Notes:</b> ${esc(d.notes||'None recorded')}</p></div>`).join(''):'<p class="note">Detailed names will appear after the updated Google Apps Script is deployed.</p>';
-  document.getElementById('adminLeaders').innerHTML=rows.length?rows.sort((a,b)=>adminLeaderDisplay(a.leader).localeCompare(adminLeaderDisplay(b.leader))).map(r=>`<div style="padding:13px 0;border-bottom:1px solid #dbe3ee"><span class="admin-leader-name">${r.leader?`<button class="admin-leader-edit" data-leader="${esc(r.leader)}" onclick="editAdminLeaderName(this.dataset.leader)" aria-label="Edit complete name for ${esc(adminLeaderDisplay(r.leader))}">•</button>`:'<span aria-hidden="true">•</span>'}<b>${esc(adminLeaderDisplay(r.leader))}</b></span><div class="admin-lifegroup-name">${esc(r.group||'Lifegroup not recorded')}</div><small>${quantityLabel(r.reports,'report')} · ${quantityLabel(r.members,'member')} · ${quantityLabel(r.visitors,'visitor')}</small><details style="margin-top:10px"><summary style="cursor:pointer;color:#17477d;font-weight:800">View submitted details</summary>${reportDetails(r)}</details></div>`).join(''):'No submitted reports for this month.';
+  document.getElementById('adminLeaders').innerHTML=rows.length?rows.sort((a,b)=>adminLeaderDisplay(a.leader,a.group).localeCompare(adminLeaderDisplay(b.leader,b.group))).map(r=>`<div style="padding:13px 0;border-bottom:1px solid #dbe3ee"><span class="admin-leader-name"><button class="admin-leader-edit" data-leader="${esc(r.leader||'')}" data-group="${esc(r.group||'')}" onclick="editAdminLeaderName(this.dataset.leader,this.dataset.group)" aria-label="Edit complete name for ${esc(adminLeaderDisplay(r.leader,r.group))}">•</button><b>${esc(adminLeaderDisplay(r.leader,r.group))}</b></span><div class="admin-lifegroup-name">${esc(r.group||'Lifegroup not recorded')}</div><small>${quantityLabel(r.reports,'report')} · ${quantityLabel(r.members,'member')} · ${quantityLabel(r.visitors,'visitor')}</small><details style="margin-top:10px"><summary style="cursor:pointer;color:#17477d;font-weight:800">View submitted details</summary>${reportDetails(r)}</details></div>`).join(''):'No submitted reports for this month.';
 }
 function openMainMenu(){openModal('mainMenuModal')}
 function goToView(name){closeModal('mainMenuModal');showView(name)}
